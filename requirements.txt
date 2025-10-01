@@ -1,0 +1,7 @@
+openai
+pandas
+fastapi
+uvicorn
+streamlit
+Pillow
+python-dotenv
