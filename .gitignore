@@ -1,3 +1,5 @@
+#ignore virtual enviornment
+agent_env/
 #ignore congif file which has keys, passwords
 config.py
 # Byte-compiled / optimized / DLL files
