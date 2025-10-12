@@ -1,13 +1,14 @@
 # backend.py
 import base64
 from typing import List
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from agent import app_agent, AgentState
 
 app = FastAPI()
 
 @app.post("/predict/")
-async def predict(files: List[UploadFile] = File(...)):
+async def predict(files: List[UploadFile] = File(...),
+                  car_model: str = Form("generic car") ):
     # Convert all images to base64
     images_b64 = []
     for file in files:
@@ -16,9 +17,12 @@ async def predict(files: List[UploadFile] = File(...)):
         images_b64.append(img_b64)
 
     # Initialize agent state
-    state = AgentState(messages=[{"role": "user", "content": "Car damage estimation request"}], images=images_b64)
+    state = AgentState(messages=[{"role": "user", "content": "Car damage estimation request"}], 
+                       images=images_b64,
+                       car_model=car_model)
 
     # Run agent
     final_state = app_agent.invoke(state)
 
-    return {"unique_damaged_parts": final_state.get("result", [])}
+    return {"unique_damaged_parts": final_state.get("result", []),
+        "estimated_prices": final_state.get("part_prices", {})}

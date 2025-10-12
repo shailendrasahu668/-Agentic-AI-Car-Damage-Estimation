@@ -13,7 +13,9 @@ client = OpenAI(api_key=api_key)
 class AgentState(TypedDict):
     messages: List[Dict[str, Any]]
     images: List[str]
-    result: List[str]    
+    result: List[str]
+    car_model: str                   # from frontend
+    part_prices: Dict[str, float]     
 
 # --- Node 1: Analyze images ---
 def analyze_images(state: AgentState):
@@ -59,10 +61,44 @@ def analyze_images(state: AgentState):
     state["result"] = sorted(parts_set)
     return state
 
-# Node price estimation
-def estimate_price_inventory(state:AgentState):
-    #input : state["result"]
-    df = pd.read_csv("")
+# --- Node 2: Fetch approximate prices ---
+def fetch_prices(state: AgentState) -> AgentState:
+    parts = state.get("result", [])
+    car_model = state.get("car_model", "generic car")
+
+    if not parts:
+        state["part_prices"] = {}
+        return state
+
+    prompt = f"""
+    You are a car parts pricing assistant.
+    The damaged car parts for a {car_model} are: {', '.join(parts)}.
+    Estimate a reasonable replacement cost (in INR) for each part.
+    Provide output as a JSON object, example:
+    {{
+        "front bumper": 450,
+        "left headlight": 200
+    }}
+    """
+
+    response = client.chat.completions.create(
+        model="gpt-4.1",
+        messages=[{"role": "system", "content": prompt}],
+        response_format={"type": "json_object"}
+    )
+
+    prices = getattr(response.choices[0].message, "parsed", None)
+    if not prices:
+        import json
+        prices = json.loads(response.choices[0].message.content)
+
+    print("💰 Estimated Prices:", prices)
+
+    state["part_prices"] = prices
+    state["messages"].append(
+        {"role": "assistant", "content": f"Fetched prices for {len(prices)} parts for {car_model}."}
+    )
+    return state
 
 # Node Days estimation    
 def estimate_days(state: AgentState):
@@ -77,8 +113,10 @@ def estimate_days(state: AgentState):
 # --- Build Graph ---
 graph = StateGraph(AgentState)
 graph.add_node("analyze", analyze_images)
+graph.add_node("fetch_prices", fetch_prices)
 graph.set_entry_point("analyze")
-graph.add_edge("analyze", END)
+graph.add_edge("analyze", "fetch_prices")
+graph.add_edge("fetch_prices", END)
 
 # Compile to runnable agent
 app_agent = graph.compile()
