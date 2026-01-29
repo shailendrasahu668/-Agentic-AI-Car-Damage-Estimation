@@ -3,6 +3,11 @@ import streamlit as st
 import requests
 import warnings
 
+API_KEY = st.secrets.get("API_KEY") or os.getenv("API_KEY")
+if not API_KEY:
+    st.error("API_KEY is missing. Add it in Streamlit Secrets.")
+    st.stop()
+    
 warnings.filterwarnings("ignore")
 
 st.title("🚗 Car Damage Estimator (Multi-Image)")
