@@ -2,7 +2,7 @@ openai
 pandas
 fastapi
 uvicorn
-streamlit==1.31.1
-altair==4.2.2
+streamlit==1.52.1
+altair>=5
 Pillow
 python-dotenv
