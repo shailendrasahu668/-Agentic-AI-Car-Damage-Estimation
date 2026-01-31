@@ -6,7 +6,7 @@ from openai import OpenAI
 from config import api_key
 from typing import List, Dict, Any, TypedDict
 import pandas as pd
-
+import streamlit as st
 API_KEY = st.secrets.get("API_KEY") or os.getenv("API_KEY")
 
 if not API_KEY:
