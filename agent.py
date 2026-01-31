@@ -5,6 +5,7 @@ from langgraph.graph import StateGraph, END
 from openai import OpenAI
 from typing import List, Dict, Any, TypedDict
 import pandas as pd
+import streamlit as st
 
 API_KEY = st.secrets.get("API_KEY") or os.getenv("API_KEY")
 
