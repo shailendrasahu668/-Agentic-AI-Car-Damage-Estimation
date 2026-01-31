@@ -26,7 +26,7 @@ if uploaded_files:
             files.append(("files", (file.name, file.getvalue(), file.type)))
         data = {"car_model": car_model or "generic car"}
         try:
-            response = requests.post("http://127.0.0.1:8000/predict/", files=files, data = data)
+            response = requests.post("https://agentic-ai-car-damage-estimation.onrender.com/predict/", files=files, data = data)
             if response.ok:
                 result = response.json()
                 st.success("✅ Unique Damaged Parts Identified:")
