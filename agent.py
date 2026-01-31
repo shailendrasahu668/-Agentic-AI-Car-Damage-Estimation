@@ -7,7 +7,12 @@ from config import api_key
 from typing import List, Dict, Any, TypedDict
 import pandas as pd
 
-client = OpenAI(api_key=api_key)
+API_KEY = st.secrets.get("API_KEY") or os.getenv("API_KEY")
+
+if not API_KEY:
+    st.error("API_KEY is missing. Add it in Streamlit Secrets.")
+    st.stop()
+client = OpenAI(api_key=API_KEY)
 
 # --- State ---
 class AgentState(TypedDict):
