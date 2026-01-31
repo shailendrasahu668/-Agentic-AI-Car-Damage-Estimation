@@ -6,12 +6,12 @@ from openai import OpenAI
 from config import api_key
 from typing import List, Dict, Any, TypedDict
 import pandas as pd
-import streamlit as st
-API_KEY = st.secrets.get("API_KEY") or os.getenv("API_KEY")
+import os
 
+API_KEY = os.getenv("API_KEY")
 if not API_KEY:
-    st.error("API_KEY is missing. Add it in Streamlit Secrets.")
-    st.stop()
+    raise RuntimeError("API_KEY is missing. Set it as an environment variable.")
+
 client = OpenAI(api_key=API_KEY)
 
 # --- State ---
